@@ -1,16 +1,47 @@
-const express = require('express');
-const routes = require('./routes');
-const sequelize = require('./config/connection');
-const mysql = require("mysql2");
+const db = require('./config/connection');
+const inquirer = require('inquirer');
 
-const app = express();
-const PORT = process.env.PORT || 3001;
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+function mainmenu() {
 
-app.use(routes);
+  inquirer.prompt({
+    type: 'list', name: 'task', message: 'select query from list', choices: ['view departments', 'view roles', 'view employees']
+  }).then(answers => {
+    console.log(answers)
+    switch (answers.task) {
+      case 'view departments': 
+          viewDepartments()
+        break;
+        case 'view roles': 
+          viewRoles()
+        break;
+        case 'view employees': 
+          viewEmployees()
+        break;
+    
+      default:
+        break;
+    }
+  })
+}
 
-sequelize.sync({ force: false }).then(() => {
-  app.listen(PORT, () => console.log(`Now listening on port ${PORT}`));
-});
+const viewDepartments= () => {
+  db.promise().query('SELECT * FROM department').then(([response]) => {
+    console.table(response)
+    mainmenu()
+  });
+
+}
+const viewRoles= () => {
+  db.promise().query('SELECT * FROM roles').then(([response]) => {
+    console.table(response)
+    mainmenu()
+  });
+}
+const viewEmployees= () => {
+  db.promise().query('SELECT * FROM employee').then(([response]) => {
+    console.table(response)
+    mainmenu()
+  });
+}
+mainmenu()
