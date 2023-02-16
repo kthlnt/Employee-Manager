@@ -59,7 +59,7 @@ const viewDepartments= () => {
 }
 //add dept
 const addDepartment = () => {
-  console.log('You are adding a new department to the database.')
+  console.log('You are adding a new department.')
   inquirer
       .prompt([
           {
@@ -81,7 +81,7 @@ const addDepartment = () => {
               }
               else {
                   console.table(res)
-                  console.log('Department successfully added. See the new complete list of departments above^^^.')
+                  console.log('Department added.')
                   mainmenu()
               }
           })
@@ -96,6 +96,51 @@ const viewRoles= () => {
     mainmenu()
   });
 }
+//add role
+const addRole = () => {
+  console.log('You are adding a new role.')
+  inquirer
+      .prompt([
+          {
+              type: 'input',
+              name: 'title',
+              message: 'Role Title:',
+          },
+          {
+              type: 'input',
+              name: 'salary',
+              message: 'Salary:',
+          },
+          {
+              type: 'input',
+              name: 'dept_id',
+              message: 'Department ID:',
+          }
+      ])
+
+      .then((response) => {
+          const newRole = [
+              response.title,
+              response.salary,
+              response.dept_id,
+          ]
+          
+          db.query('INSERT INTO roles (title, salary, dept_id) VALUES (?,?,?)', newRole)
+
+          
+          db.query('SELECT * FROM roles', function (err, res) {
+              if (err) {
+                  throw err
+              }
+              else {
+                  console.table(res)
+                  console.log('Role added.')
+                  mainmenu()
+              }
+          })
+      })
+}
+
 //view employees
 const viewEmployees= () => {
   db.promise().query('SELECT * FROM employee').then(([response]) => {
@@ -105,7 +150,7 @@ const viewEmployees= () => {
 }
 //add employees
 const addEmployee = () => {
-  console.log('You are adding a new employee to the employee_db database.')
+  console.log('You are adding a new employee.')
 
   inquirer
       .prompt([
@@ -148,8 +193,38 @@ const addEmployee = () => {
               }
               else {
                   console.table(res)
-                  console.log('Employee successfully added.')
+                  console.log('Employee added.')
                   mainmenu()
+              }
+          })
+      })
+}
+//update employee role
+const updateEmployee = () => {
+
+  inquirer
+      .prompt([
+          {
+              type: 'input',
+              name: 'employee_id',
+              message: 'Enter the ID of the employee whose role you would like to change:'
+          },
+          {
+              type: 'input',
+              name: 'role_id',
+              message: 'Type the the new Role ID you would like to assign to this employee:'
+          }
+      ])
+      .then((response) => {
+
+          db.query('UPDATE employee SET role_id=? WHERE id=?', [response.role_id, response.employee_id], function (err, res) {
+              if (err) {
+                  throw err
+
+              } else {
+                  console.table(res)
+                  viewEmployees()
+                  console.log("Role ID updated for employee.")
               }
           })
       })
